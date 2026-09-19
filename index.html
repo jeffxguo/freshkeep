@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FreshKeep</title>
+<meta name="theme-color" content="#2E7D4F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FreshKeep">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* ---------- Tokens ---------- */
+:root{
+  --ground:#F5F7F2;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1E9;
+  --ink:#1C231D;
+  --ink-2:#4E574F;
+  --muted:#77807A;
+  --line:#D9DFD6;
+  --line-strong:#B9C2B6;
+  --accent:#2E7D4F;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#DDEFE3;
+  --fresh:#2E7D4F;  --fresh-soft:#DDEFE3;
+  --soon:#9A6700;   --soon-soft:#FFF1CC;
+  --today:#B4531B;  --today-soft:#FFE3D1;
+  --expired:#B3261E;--expired-soft:#FBDCD9;
+  --focus:#1F5FBF;
+  --shadow:0 10px 30px rgba(20,40,25,.14);
+  --radius:14px;
+  --tap:44px;
+  --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+  --font-body:"Atkinson Hyperlegible", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --fs:17px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#121614; --surface:#1B211D; --surface-2:#242C26;
+    --ink:#ECEFEA; --ink-2:#C2CAC3; --muted:#8E978F;
+    --line:#2E372F; --line-strong:#465046;
+    --accent:#5CC287; --accent-ink:#0E1A12; --accent-soft:#1F3A2A;
+    --fresh:#5CC287; --fresh-soft:#1F3A2A;
+    --soon:#F2BE45; --soon-soft:#3D3212;
+    --today:#F08A4B; --today-soft:#43261A;
+    --expired:#F28B82; --expired-soft:#4A1F1C;
+    --focus:#8AB4F8;
+    --shadow:0 10px 30px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121614; --surface:#1B211D; --surface-2:#242C26;
+  --ink:#ECEFEA; --ink-2:#C2CAC3; --muted:#8E978F;
+  --line:#2E372F; --line-strong:#465046;
+  --accent:#5CC287; --accent-ink:#0E1A12; --accent-soft:#1F3A2A;
+  --fresh:#5CC287; --fresh-soft:#1F3A2A;
+  --soon:#F2BE45; --soon-soft:#3D3212;
+  --today:#F08A4B; --today-soft:#43261A;
+  --expired:#F28B82; --expired-soft:#4A1F1C;
+  --focus:#8AB4F8;
+  --shadow:0 10px 30px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+:root[data-size="sm"]{--fs:15px} :root[data-size="lg"]{--fs:19px} :root[data-size="xl"]{--fs:22px}
+
+/* ---------- Base ---------- */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+html{font-size:var(--fs)}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-body);line-height:1.45;-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:1.55rem}h2{font-size:1.25rem}h3{font-size:1.05rem}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:absolute;left:16px;top:-60px;background:var(--accent);color:var(--accent-ink);padding:10px 14px;border-radius:8px;z-index:100}
+.skip:focus{top:calc(env(safe-area-inset-top,0px) + 8px)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---------- App shell ---------- */
+#app{display:flex;flex-direction:column;height:100%;max-width:720px;margin:0 auto}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground);padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:8px}
+.brand svg{width:28px;height:28px;flex:none}
+main{flex:1;overflow-y:auto;padding:12px 16px 110px;-webkit-overflow-scrolling:touch}
+.view[hidden]{display:none}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);display:flex;justify-content:space-around;max-width:720px;margin:0 auto}
+.tabbar button{flex:1;min-height:var(--tap);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;border-radius:10px;padding:6px 4px;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.02em;position:relative}
+.tabbar button svg{width:22px;height:22px}
+.tabbar button[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
+.tabbar .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--expired);color:#fff;font-size:.68rem;line-height:18px;text-align:center}
+.fab{position:fixed;right:max(16px,calc(50% - 344px));bottom:calc(env(safe-area-inset-bottom,0px) + 72px);z-index:7;height:56px;padding:0 20px 0 16px;border-radius:28px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:700;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px}
+.fab svg{width:22px;height:22px}
+
+/* ---------- Components ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{min-height:var(--tap);padding:8px 14px;border-radius:10px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--expired);border-color:var(--expired)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{min-height:36px;padding:4px 10px;font-size:.88rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn svg{width:18px;height:18px}
+.icon-btn{width:var(--tap);height:var(--tap);padding:0;border-radius:50%;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2)}
+.icon-btn svg{width:22px;height:22px}
+.icon-btn:hover{background:var(--surface-2)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label,.legend{font-size:.85rem;font-weight:700;color:var(--ink-2);letter-spacing:.01em}
+.field .hint{font-size:.8rem;color:var(--muted)}
+input[type="text"],input[type="search"],input[type="number"],input[type="date"],select,textarea{width:100%;min-height:var(--tap);padding:8px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink)}
+input[type="date"]{-webkit-appearance:none;appearance:none}
+textarea{min-height:72px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:380px){.grid2{grid-template-columns:1fr}}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none;margin:0 -16px;padding-inline:16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:36px;padding:4px 12px;border-radius:18px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);font-weight:700;font-size:.88rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.chip .count{opacity:.7;font-weight:400;margin-left:4px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.pill.fresh{background:var(--fresh-soft);color:var(--fresh)}
+.pill.soon{background:var(--soon-soft);color:var(--soon)}
+.pill.today{background:var(--today-soft);color:var(--today)}
+.pill.expired{background:var(--expired-soft);color:var(--expired)}
+.tag{display:inline-block;padding:1px 8px;border-radius:6px;background:var(--surface-2);color:var(--ink-2);font-size:.78rem}
+.divider{height:1px;background:var(--line);margin:4px 0}
+.empty{text-align:center;color:var(--muted);padding:32px 12px}
+.empty svg{width:56px;height:56px;color:var(--line-strong);margin-bottom:8px}
+
+/* Summary */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;border:1px solid transparent;text-align:left;background:var(--surface);cursor:pointer;min-height:var(--tap)}
+.stat b{font-family:var(--font-display);font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.78rem;font-weight:700}
+.stat.expired{background:var(--expired-soft);color:var(--expired)}
+.stat.soon{background:var(--soon-soft);color:var(--soon)}
+.stat.fresh{background:var(--fresh-soft);color:var(--fresh)}
+.stat[aria-pressed="true"]{border-color:currentColor}
+.notice{background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:.9rem}
+.notice.warn{background:var(--soon-soft);border-color:var(--soon)}
+
+/* Item list */
+.group-title{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px;color:var(--ink-2);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.list{display:flex;flex-direction:column;gap:8px;list-style:none;margin:0;padding:0}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);display:grid;grid-template-columns:6px 1fr;overflow:hidden}
+.item .stripe{background:var(--line-strong)}
+.item.fresh .stripe{background:var(--fresh)} .item.soon .stripe{background:var(--soon)} .item.today .stripe{background:var(--today)} .item.expired .stripe{background:var(--expired)}
+.item .body{padding:10px 12px 10px 10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.item .main{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;width:100%;background:none;border:0;padding:0;text-align:left;min-height:var(--tap)}
+.item .name{font-weight:700;font-size:1.02rem;overflow-wrap:anywhere}
+.item .meta{color:var(--muted);font-size:.82rem;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.item .when{flex:none;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.item .date{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.item .actions{display:flex;gap:6px;flex-wrap:wrap}
+.item .actions .btn{flex:1;min-width:0}
+
+/* Shopping / waste */
+.check-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 8px 6px 12px;min-height:56px}
+.check-row input[type="checkbox"]{width:26px;height:26px;accent-color:var(--accent);flex:none}
+.check-row .text{flex:1;min-width:0;overflow-wrap:anywhere}
+.check-row.done .text{text-decoration:line-through;color:var(--muted)}
+.check-row .sub{font-size:.8rem;color:var(--muted)}
+.bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--expired)}
+.rank{display:flex;flex-direction:column;gap:8px}
+.rank .r{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;font-size:.92rem}
+
+/* Settings */
+.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:var(--tap);padding:6px 0}
+.setting .lbl{display:flex;flex-direction:column}
+.setting .lbl small{color:var(--muted)}
+.setting select,.setting input[type="number"]{width:auto;min-width:110px}
+.mgr-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.mgr-row:last-child{border-bottom:0}
+.mgr-row .nm{font-weight:700}
+.mgr-row .sub{font-size:.8rem;color:var(--muted)}
+.mgr-row .ops{display:flex;gap:2px}
+.mgr-row .ops .icon-btn{width:38px;height:38px}
+.switch{position:relative;width:52px;height:30px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch i{position:absolute;inset:0;background:var(--line-strong);border-radius:15px;transition:background .15s}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked+i{background:var(--accent)} .switch input:checked+i::after{transform:translateX(22px)}
+.switch input:focus-visible+i{outline:3px solid var(--focus);outline-offset:2px}
+
+/* Dialogs / sheets */
+dialog{border:0;padding:0;background:transparent;max-width:none;max-height:none;width:100%;height:100%;margin:0;position:fixed;inset:0}
+dialog::backdrop{background:rgba(10,20,12,.5)}
+.sheet{position:absolute;left:0;right:0;bottom:0;margin:0 auto;max-width:720px;max-height:calc(100% - env(safe-area-inset-top,0px) - 24px);overflow-y:auto;background:var(--ground);color:var(--ink);border-radius:20px 20px 0 0;padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 16px);box-shadow:var(--shadow);animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}}
+.sheet .handle{width:40px;height:5px;border-radius:3px;background:var(--line-strong);margin:2px auto 10px}
+.sheet header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,420px);background:var(--ground);color:var(--ink);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.modal h2{margin-bottom:8px}
+.modal .row{justify-content:flex-end;margin-top:14px}
+.scanbox{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:4/3;max-width:100%}
+.scanbox video{width:100%;height:100%;object-fit:cover}
+.scanbox .frame{position:absolute;inset:18% 12%;border:2px solid #fff;border-radius:10px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 140px);z-index:20;background:var(--ink);color:var(--ground);padding:10px 12px 10px 16px;border-radius:12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);max-width:calc(100vw - 32px);font-size:.92rem}
+.toast button{background:transparent;border:0;color:var(--accent);font-weight:700;min-height:36px;padding:0 8px}
+:root[data-theme="dark"] .toast button,.toast button{color:#8FE0B0}
+.datalist-hint{font-size:.8rem;color:var(--muted)}
+.qty-row{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center}
+.qty-row .icon-btn{border:1px solid var(--line-strong)}
+.qty-row input{text-align:center}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.quick .chip{min-height:32px;font-size:.8rem}
+</style>
+
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c-6 0-11 5-11 12 0 8 6 14 11 14s11-6 11-14c0-7-5-12-11-12z" fill="#2E7D4F"/><path d="M16 3c-1 4-1 9 0 26" stroke="#DDEFE3" stroke-width="2" fill="none"/><path d="M16 5c3-3 6-3 8-2-2 1-5 2-8 2z" fill="#7BC58F"/></svg>
+      <h1 id="viewTitle">Inventory</h1>
+    </div>
+    <div class="row" style="gap:2px">
+      <button class="icon-btn" id="btnSearchToggle" aria-label="Search items" aria-expanded="false" aria-controls="searchWrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+      <button class="icon-btn" id="btnScanTop" aria-label="Scan a barcode to add an item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3M7 8v8M10 8v8M13 8v8M17 8v8"/></svg></button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <!-- ===== Inventory ===== -->
+    <section class="view stack" id="view-inventory" role="tabpanel" aria-labelledby="tab-inventory">
+      <div id="sampleNotice" class="notice" hidden>
+        <span style="flex:1">These are <b>example items</b> so you can see how FreshKeep works. Clear them when you're ready.</span>
+        <button class="btn sm" id="btnClearSamples">Clear examples</button>
+      </div>
+      <div id="notifNotice" class="notice warn" hidden>
+        <span style="flex:1">Turn on reminders to get a heads-up before food expires.</span>
+        <button class="btn sm" id="btnEnableNotif">Turn on</button>
+        <button class="icon-btn" id="btnDismissNotif" aria-label="Dismiss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="summary" role="group" aria-label="Summary. Tap a number to filter.">
+        <button class="stat expired" id="statExpired" aria-pressed="false"><b>0</b><span>Expired</span></button>
+        <button class="stat soon" id="statSoon" aria-pressed="false"><b>0</b><span>Expiring soon</span></button>
+        <button class="stat fresh" id="statFresh" aria-pressed="false"><b>0</b><span>Fresh</span></button>
+      </div>
+      <div id="searchWrap" hidden>
+        <label class="sr-only" for="search">Search items</label>
+        <input type="search" id="search" placeholder="Search by name, category, or note…" autocomplete="off">
+      </div>
+      <div class="chips" id="locChips" role="group" aria-label="Filter by location"></div>
+      <div class="row" style="justify-content:space-between">
+        <div class="row" style="gap:6px">
+          <label for="sort" class="legend">Sort</label>
+          <select id="sort" style="width:auto;min-height:36px;padding:4px 8px">
+            <option value="expiry">Soonest expiry</option>
+            <option value="name">Name</option>
+            <option value="location">Location</option>
+            <option value="added">Recently added</option>
+          </select>
+        </div>
+        <button class="btn sm danger" id="btnTossExpired" hidden>Toss all expired</button>
+      </div>
+      <ul class="list" id="itemList" aria-live="polite" aria-relevant="additions removals"></ul>
+      <div class="empty" id="emptyInv" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16l-1.5 12.5a1 1 0 0 1-1 .9H6.5a1 1 0 0 1-1-.9L4 7z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+        <p id="emptyInvText">Nothing here yet. Tap <b>Add</b> to track your first item.</p>
+      </div>
+    </section>
+
+    <!-- ===== Shopping ===== -->
+    <section class="view stack" id="view-shopping" role="tabpanel" aria-labelledby="tab-shopping" hidden>
+      <form id="shopAddForm" class="row" style="flex-wrap:nowrap">
+        <label class="sr-only" for="shopAddName">Add to shopping list</label>
+        <input type="text" id="shopAddName" placeholder="Add something to buy…" autocomplete="off" style="flex:1">
+        <button class="btn primary" type="submit">Add</button>
+      </form>
+      <div class="row" style="justify-content:space-between">
+        <span class="legend" id="shopCount">0 to buy</span>
+        <button class="btn sm ghost" id="btnClearBought">Remove bought</button>
+      </div>
+      <ul class="list" id="shopList"></ul>
+      <div class="empty" id="emptyShop" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4h2l2.5 11h10L20 7H6.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/></svg>
+        <p>Your list is empty. Items you mark <b>Used</b> or <b>Toss</b> can land here automatically.</p>
+      </div>
+    </section>
+
+    <!-- ===== Waste ===== -->
+    <section class="view stack" id="view-waste" role="tabpanel" aria-labelledby="tab-waste" hidden>
+      <div class="card stack" id="wasteSummary"></div>
+      <div class="row" style="justify-content:space-between">
+        <h2>Log</h2>
+        <button class="btn sm ghost" id="btnClearWaste">Clear log</button>
+      </div>
+      <ul class="list" id="wasteList"></ul>
+      <div class="empty" id="emptyWaste" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+        <p>No waste logged. That's the goal.</p>
+      </div>
+    </section>
+
+    <!-- ===== Settings ===== -->
+    <section class="view stack" id="view-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <div class="card stack">
+        <h2>Reminders</h2>
+        <div class="setting">
+          <div class="lbl"><span>Expiry notifications</span><small id="notifStatus">Not enabled</small></div>
+          <label class="switch"><input type="checkbox" id="setNotif" aria-label="Expiry notifications"><i></i></label>
+        </div>
+        <div class="setting">
+          <label for="setLead" class="lbl"><span>Warn me this many days before</span><small>Also sets the "expiring soon" window</small></label>
+          <input type="number" id="setLead" min="0" max="30" inputmode="numeric">
+        </div>
+        <div class="row"><button class="btn sm" id="btnTestNotif">Send a test notification</button></div>
+        <p class="hint" style="font-size:.8rem;color:var(--muted)">Reminders are checked whenever you open the app. On Android (Chrome), FreshKeep can also check in the background once installed to your home screen. iOS doesn't allow background checks for web apps, so the badge on the Inventory tab is your safety net there.</p>
+      </div>
+
+      <div class="card stack">
+        <h2>Appearance</h2>
+        <div class="setting">
+          <label for="setTheme" class="lbl"><span>Theme</span></label>
+          <select id="setTheme"><option value="system">Match device</option><option value="light">Light</option><option value="dark">Dark</option></select>
+        </div>
+        <div class="setting">
+          <label for="setSize" class="lbl"><span>Text size</span></label>
+          <select id="setSize"><option value="sm">Small</option><option value="md">Default</option><option value="lg">Large</option><option value="xl">Extra large</option></select>
+        </div>
+        <div class="setting">
+          <label for="setDateFmt" class="lbl"><span>Date format</span></label>
+          <select id="setDateFmt"><option value="relative">Relative (in 3 days)</option><option value="both">Relative + date</option><option value="date">Date only</option></select>
+        </div>
+        <div class="setting">
+          <label for="setGroup" class="lbl"><span>Group inventory by location</span></label>
+          <label class="switch"><input type="checkbox" id="setGroup" aria-label="Group inventory by location"><i></i></label>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <h2>Behaviour</h2>
+        <div class="setting">
+          <div class="lbl"><span>Add to shopping list by default</span><small>When an item is used up or tossed</small></div>
+          <label class="switch"><input type="checkbox" id="setAutoShop" aria-label="Add to shopping list by default"><i></i></label>
+        </div>
+        <div class="setting">
+          <div class="lbl"><span>Confirm before tossing</span></div>
+          <label class="switch"><input type="checkbox" id="setConfirmToss" aria-label="Confirm before tossing"><i></i></label>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <div class="row" style="justify-content:space-between"><h2>Locations</h2><button class="btn sm" id="btnAddLoc">+ Add</button></div>
+        <div id="locMgr"></div>
+      </div>
+
+      <div class="card stack">
+        <div class="row" style="justify-content:space-between"><h2>Categories</h2><button class="btn sm" id="btnAddCat">+ Add</button></div>
+        <p class="hint" style="font-size:.8rem;color:var(--muted)">Each category has a default shelf life. Picking it when adding an item fills in the expiry date for you. "Once opened" overrides it after you set an opened date.</p>
+        <div id="catMgr"></div>
+      </div>
+
+      <div class="card stack">
+        <h2>Your data</h2>
+        <p style="font-size:.9rem;color:var(--ink-2)">Everything is stored on this device only. Back it up or move it to another phone here.</p>
+        <div class="row">
+          <button class="btn" id="btnExport">Export backup</button>
+          <button class="btn" id="btnImport">Import backup</button>
+          <button class="btn danger" id="btnReset">Erase everything</button>
+        </div>
+        <p id="installHint" class="hint" style="font-size:.8rem;color:var(--muted)"></p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-inventory" data-view="inventory" aria-selected="true" aria-controls="view-inventory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16l-1.5 12.5a1 1 0 0 1-1 .9H6.5a1 1 0 0 1-1-.9L4 7z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>Inventory<span class="badge" id="badgeInv" hidden></span></button>
+    <button role="tab" id="tab-shopping" data-view="shopping" aria-selected="false" aria-controls="view-shopping" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 4h2l2.5 11h10L20 7H6.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/></svg>Shopping<span class="badge" id="badgeShop" hidden></span></button>
+    <button role="tab" id="tab-waste" data-view="waste" aria-selected="false" aria-controls="view-waste" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V9M10 19V5M16 19v-8M22 19H2"/></svg>Waste</button>
+    <button role="tab" id="tab-settings" data-view="settings" aria-selected="false" aria-controls="view-settings" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
+  </nav>
+
+  <button class="fab" id="fab" aria-label="Add item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add</button>
+</div>
+
+<!-- ===== Item sheet ===== -->
+<dialog id="itemDialog" aria-labelledby="itemDialogTitle">
+  <form class="sheet stack" id="itemForm" method="dialog" novalidate>
+    <div class="handle" aria-hidden="true"></div>
+    <header>
+      <h2 id="itemDialogTitle">Add item</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <input type="hidden" id="fId">
+    <input type="hidden" id="fBarcode">
+    <div class="field">
+      <label for="fName">Name</label>
+      <div class="row" style="flex-wrap:nowrap">
+        <input type="text" id="fName" list="nameList" required autocomplete="off" style="flex:1" placeholder="e.g. Greek yogurt">
+        <button type="button" class="btn" id="btnScanForm" aria-label="Scan barcode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3M7 8v8M10 8v8M13 8v8M17 8v8"/></svg></button>
+      </div>
+      <datalist id="nameList"></datalist>
+      <p class="hint" id="fNameErr" role="alert" hidden style="color:var(--expired)">Give the item a name.</p>
+      <p class="hint" id="fBarcodeHint" hidden></p>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="fCategory">Category</label>
+        <select id="fCategory"></select>
+      </div>
+      <div class="field">
+        <label for="fLocation">Location</label>
+        <select id="fLocation"></select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="fQty">Quantity</label>
+        <div class="qty-row">
+          <button type="button" class="icon-btn" id="qtyMinus" aria-label="Decrease quantity">−</button>
+          <input type="number" id="fQty" min="0" step="any" value="1" inputmode="decimal">
+          <button type="button" class="icon-btn" id="qtyPlus" aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fUnit">Unit</label>
+        <input type="text" id="fUnit" list="unitList" placeholder="pcs, g, L…" autocomplete="off">
+        <datalist id="unitList"><option value="pcs"><option value="pack"><option value="g"><option value="kg"><option value="mL"><option value="L"><option value="bunch"><option value="can"><option value="jar"><option value="bag"><option value="box"></datalist>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="fPurchased">Bought on</label>
+        <input type="date" id="fPurchased">
+      </div>
+      <div class="field">
+        <label for="fOpened">Opened on <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <input type="date" id="fOpened">
+      </div>
+    </div>
+    <div class="field">
+      <label for="fExpires">Expires on</label>
+      <input type="date" id="fExpires" required>
+      <p class="hint" id="fExpiresHint"></p>
+      <p class="hint" id="fExpiresErr" role="alert" hidden style="color:var(--expired)">Pick an expiry date.</p>
+      <div class="quick" role="group" aria-label="Quick expiry">
+        <button type="button" class="chip" data-days="1">Tomorrow</button>
+        <button type="button" class="chip" data-days="3">+3 days</button>
+        <button type="button" class="chip" data-days="7">+1 week</button>
+        <button type="button" class="chip" data-days="14">+2 weeks</button>
+        <button type="button" class="chip" data-days="30">+1 month</button>
+        <button type="button" class="chip" data-days="180">+6 months</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fNotes">Notes <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea id="fNotes" rows="2" placeholder="Brand, where it is on the shelf, who it's for…"></textarea>
+    </div>
+    <div class="setting">
+      <div class="lbl"><span>Add to shopping list when used or tossed</span></div>
+      <label class="switch"><input type="checkbox" id="fReshop" aria-label="Add to shopping list when used or tossed"><i></i></label>
+    </div>
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <button type="button" class="btn danger" id="btnDeleteItem" hidden>Delete</button>
+        <button type="button" class="btn" id="btnDuplicate" hidden>Duplicate</button>
+      </div>
+      <div class="row">
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary" id="btnSaveItem">Save</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!-- ===== Scanner ===== -->
+<dialog id="scanDialog" aria-labelledby="scanTitle">
+  <div class="modal stack">
+    <h2 id="scanTitle">Scan a barcode</h2>
+    <div class="scanbox"><video id="scanVideo" playsinline muted autoplay></video><div class="frame" aria-hidden="true"></div></div>
+    <p id="scanStatus" aria-live="polite" style="font-size:.9rem;color:var(--ink-2)">Point the camera at the barcode.</p>
+    <div class="field">
+      <label for="scanManual">Or type the barcode number</label>
+      <div class="row" style="flex-wrap:nowrap"><input type="text" id="scanManual" inputmode="numeric" autocomplete="off" style="flex:1"><button type="button" class="btn" id="scanManualGo">Look up</button></div>
+    </div>
+    <div class="row"><button type="button" class="btn" id="scanCancel">Cancel</button></div>
+  </div>
+</dialog>
+
+<!-- ===== Generic confirm / prompt ===== -->
+<dialog id="confirmDialog" aria-labelledby="confirmTitle">
+  <form class="modal" method="dialog">
+    <h2 id="confirmTitle">Are you sure?</h2>
+    <p id="confirmText" style="color:var(--ink-2)"></p>
+    <div class="row"><button type="button" class="btn" value="cancel" id="confirmCancel">Cancel</button><button type="submit" class="btn primary" id="confirmOk">OK</button></div>
+  </form>
+</dialog>
+
+<dialog id="promptDialog" aria-labelledby="promptTitle">
+  <form class="modal stack" method="dialog" id="promptForm">
+    <h2 id="promptTitle">Edit</h2>
+    <div class="field"><label for="promptName" id="promptNameLbl">Name</label><input type="text" id="promptName" required autocomplete="off"></div>
+    <div class="field" id="promptEmojiWrap"><label for="promptEmoji">Icon (emoji, optional)</label><input type="text" id="promptEmoji" maxlength="4" autocomplete="off"></div>
+    <div class="grid2" id="promptDaysWrap">
+      <div class="field"><label for="promptDays">Shelf life (days)</label><input type="number" id="promptDays" min="0" max="3650" inputmode="numeric"></div>
+      <div class="field"><label for="promptOpened">Once opened (days)</label><input type="number" id="promptOpened" min="0" max="3650" inputmode="numeric" placeholder="same"></div>
+    </div>
+    <div class="row"><button type="button" class="btn" id="promptCancel">Cancel</button><button type="submit" class="btn primary">Save</button></div>
+  </form>
+</dialog>
+
+<!-- ===== Re-add from shopping ===== -->
+<dialog id="restockDialog" aria-labelledby="restockTitle">
+  <form class="modal stack" method="dialog" id="restockForm">
+    <h2 id="restockTitle">Bought it — add to inventory?</h2>
+    <p id="restockText" style="color:var(--ink-2)"></p>
+    <div class="field"><label for="restockExpires">Expires on</label><input type="date" id="restockExpires"></div>
+    <div class="row"><button type="button" class="btn" id="restockSkip">Just tick it off</button><button type="submit" class="btn primary">Add to inventory</button></div>
+  </form>
+</dialog>
+
+<!-- ===== Import ===== -->
+<dialog id="importDialog" aria-labelledby="importTitle">
+  <form class="modal stack" method="dialog" id="importForm">
+    <h2 id="importTitle">Import backup</h2>
+    <p style="color:var(--ink-2);font-size:.9rem">Paste the backup text you exported earlier. This replaces what's on this device.</p>
+    <div class="field"><label for="importText" class="sr-only">Backup text</label><textarea id="importText" rows="6" required></textarea></div>
+    <div class="row"><button type="button" class="btn" id="importCancel">Cancel</button><button type="submit" class="btn primary">Import</button></div>
+  </form>
+</dialog>
+
+<dialog id="exportDialog" aria-labelledby="exportTitle">
+  <div class="modal stack">
+    <h2 id="exportTitle">Backup</h2>
+    <p style="color:var(--ink-2);font-size:.9rem">Copy this text somewhere safe (notes, email to yourself). Paste it into <b>Import backup</b> on another device.</p>
+    <div class="field"><label for="exportText" class="sr-only">Backup text</label><textarea id="exportText" rows="6" readonly></textarea></div>
+    <div class="row"><button type="button" class="btn" id="exportClose">Close</button><button type="button" class="btn" id="exportDownload">Download file</button><button type="button" class="btn primary" id="exportCopy">Copy</button></div>
+  </div>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toastText"></span><button id="toastAction" hidden>Undo</button></div>
+
+<script>
+/* FreshKeep — grocery expiry tracker. Vanilla JS, local-only data. */
+(function () {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const KEY = 'freshkeep.v1';
+  const DAY = 86400000;
+
+  /* ---------- Dates ---------- */
+  const pad = n => String(n).padStart(2, '0');
+  const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const todayISO = () => iso(new Date());
+  const parseISO = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (s, n) => iso(new Date(parseISO(s).getTime() + n * DAY + 3600000)); // +1h guards DST
+  const daysBetween = (a, b) => Math.round((parseISO(b) - parseISO(a)) / DAY);
+  const fmtDate = s => parseISO(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: parseISO(s).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined });
+  const relDays = n => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : n === -1 ? 'Yesterday' : n > 0 ? `In ${n} days` : `${-n} days ago`;
+
+  /* ---------- Defaults ---------- */
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  const DEFAULT_LOCATIONS = [
+    { id: 'fridge', name: 'Fridge', emoji: '🧊' },
+    { id: 'freezer', name: 'Freezer', emoji: '❄️' },
+    { id: 'pantry', name: 'Pantry', emoji: '🥫' },
+    { id: 'counter', name: 'Counter', emoji: '🍌' },
+  ];
+  const DEFAULT_CATEGORIES = [
+    { id: 'dairy', name: 'Dairy', days: 10, opened: 5 },
+    { id: 'meat', name: 'Meat & poultry', days: 3, opened: 2 },
+    { id: 'seafood', name: 'Seafood', days: 2, opened: 1 },
+    { id: 'produce', name: 'Fruit & vegetables', days: 7, opened: 4 },
+    { id: 'leafy', name: 'Leafy greens & herbs', days: 5, opened: 3 },
+    { id: 'bread', name: 'Bread & bakery', days: 5, opened: 4 },
+    { id: 'eggs', name: 'Eggs', days: 28, opened: 28 },
+    { id: 'leftovers', name: 'Leftovers', days: 3, opened: 3 },
+    { id: 'deli', name: 'Deli & cooked meats', days: 5, opened: 3 },
+    { id: 'condiments', name: 'Condiments & sauces', days: 365, opened: 60 },
+    { id: 'frozen', name: 'Frozen', days: 180, opened: 30 },
+    { id: 'canned', name: 'Canned & jarred', days: 720, opened: 5 },
+    { id: 'dry', name: 'Dry goods & snacks', days: 180, opened: 30 },
+    { id: 'drinks', name: 'Drinks & juice', days: 30, opened: 7 },
+    { id: 'other', name: 'Other', days: 14, opened: 7 },
+  ];
+  const DEFAULT_SETTINGS = { lead: 3, theme: 'system', size: 'md', dateFmt: 'both', group: false, autoShop: true, confirmToss: false, notif: false, notifDismissed: false, sampleShown: false };
+
+  const sampleItems = () => {
+    const t = todayISO();
+    return [
+      { name: 'Whole milk', cat: 'dairy', loc: 'fridge', qty: 1, unit: 'L', purchased: addDays(t, -5), expires: addDays(t, 2) },
+      { name: 'Chicken thighs', cat: 'meat', loc: 'fridge', qty: 500, unit: 'g', purchased: addDays(t, -2), expires: addDays(t, 1) },
+      { name: 'Baby spinach', cat: 'leafy', loc: 'fridge', qty: 1, unit: 'bag', purchased: addDays(t, -6), expires: addDays(t, -1) },
+      { name: 'Sourdough loaf', cat: 'bread', loc: 'counter', qty: 1, unit: 'pcs', purchased: addDays(t, -1), expires: addDays(t, 4) },
+      { name: 'Frozen dumplings', cat: 'frozen', loc: 'freezer', qty: 1, unit: 'bag', purchased: addDays(t, -20), expires: addDays(t, 160) },
+      { name: 'Chickpeas', cat: 'canned', loc: 'pantry', qty: 2, unit: 'can', purchased: addDays(t, -40), expires: addDays(t, 500) },
+    ].map(s => ({ id: uid(), name: s.name, categoryId: s.cat, locationId: s.loc, qty: s.qty, unit: s.unit, purchased: s.purchased, opened: '', expires: s.expires, notes: '', barcode: '', reshop: true, added: Date.now(), sample: true }));
+  };
+
+  /* ---------- State ---------- */
+  let S;
+  function load() {
+    let raw = null;
+    try { raw = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { raw = null; }
+    if (!raw) {
+      S = { items: sampleItems(), shopping: [], waste: [], locations: DEFAULT_LOCATIONS.map(x => ({ ...x })), categories: DEFAULT_CATEGORIES.map(x => ({ ...x })), settings: { ...DEFAULT_SETTINGS }, barcodes: {}, notified: {} };
+    } else {
+      S = raw;
+      S.settings = { ...DEFAULT_SETTINGS, ...(S.settings || {}) };
+      S.items = S.items || []; S.shopping = S.shopping || []; S.waste = S.waste || [];
+      S.locations = S.locations && S.locations.length ? S.locations : DEFAULT_LOCATIONS.map(x => ({ ...x }));
+      S.categories = S.categories && S.categories.length ? S.categories : DEFAULT_CATEGORIES.map(x => ({ ...x }));
+      S.barcodes = S.barcodes || {}; S.notified = S.notified || {};
+    }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Could not save — storage is full or blocked.'); }
+    pushSnapshotToSW();
+  }
+
+  const loc = id => S.locations.find(l => l.id === id);
+  const cat = id => S.categories.find(c => c.id === id);
+  const status = item => {
+    const n = daysBetween(todayISO(), item.expires);
+    if (n < 0) return 'expired';
+    if (n === 0) return 'today';
+    if (n <= S.settings.lead) return 'soon';
+    return 'fresh';
+  };
+  const STATUS_LABEL = { expired: 'Expired', today: 'Expires today', soon: 'Expiring soon', fresh: 'Fresh' };
+
+  /* ---------- UI state ---------- */
+  let view = 'inventory';
+  let filterStatus = null; // 'expired' | 'soon' | 'fresh' | null
+  let filterLoc = 'all';
+  let query = '';
+  let undoStack = null;
+
+  /* ---------- Toast ---------- */
+  let toastTimer;
+  function toast(msg, action, fn, ms = 6000) {
+    const t = $('#toast'), a = $('#toastAction');
+    $('#toastText').textContent = msg;
+    a.hidden = !action; a.textContent = action || '';
+    a.onclick = () => { fn && fn(); hideToast(); };
+    t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, ms);
+  }
+  function hideToast() { $('#toast').hidden = true; }
+
+  /* ---------- Dialog helpers ---------- */
+  let lastFocus = null;
+  function openDialog(d) {
+    lastFocus = document.activeElement;
+    if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+    const first = d.querySelector('input:not([type=hidden]):not([disabled]),select,textarea,button');
+    first && first.focus();
+  }
+  function closeDialog(d) {
+    if (d.open) d.close();
+    lastFocus && lastFocus.focus && lastFocus.focus();
+  }
+  function confirm(title, text, okLabel = 'OK', danger = false) {
+    return new Promise(res => {
+      const d = $('#confirmDialog');
+      $('#confirmTitle').textContent = title; $('#confirmText').textContent = text;
+      const ok = $('#confirmOk'); ok.textContent = okLabel; ok.className = 'btn ' + (danger ? 'danger' : 'primary');
+      const done = v => { d.removeEventListener('close', onClose); res(v); };
+      const onClose = () => done(false);
+      d.addEventListener('close', onClose);
+      $('#confirmCancel').onclick = () => { closeDialog(d); };
+      d.querySelector('form').onsubmit = e => { e.preventDefault(); d.removeEventListener('close', onClose); closeDialog(d); res(true); };
+      openDialog(d);
+    });
+  }
+
+  /* ---------- Rendering: inventory ---------- */
+  function counts() {
+    const c = { expired: 0, today: 0, soon: 0, fresh: 0 };
+    S.items.forEach(i => c[status(i)]++);
+    return c;
+  }
+  function visibleItems() {
+    const q = query.trim().toLowerCase();
+    let list = S.items.filter(i => {
+      const st = status(i);
+      if (filterStatus === 'expired' && st !== 'expired') return false;
+      if (filterStatus === 'soon' && !(st === 'soon' || st === 'today')) return false;
+      if (filterStatus === 'fresh' && st !== 'fresh') return false;
+      if (filterLoc !== 'all' && i.locationId !== filterLoc) return false;
+      if (q) {
+        const hay = [i.name, (cat(i.categoryId) || {}).name, (loc(i.locationId) || {}).name, i.notes].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    const sort = $('#sort').value;
+    const byName = (a, b) => a.name.localeCompare(b.name);
+    if (sort === 'expiry') list.sort((a, b) => a.expires.localeCompare(b.expires) || byName(a, b));
+    else if (sort === 'name') list.sort(byName);
+    else if (sort === 'added') list.sort((a, b) => b.added - a.added);
+    else if (sort === 'location') list.sort((a, b) => S.locations.findIndex(l => l.id === a.locationId) - S.locations.findIndex(l => l.id === b.locationId) || a.expires.localeCompare(b.expires));
+    return list;
+  }
+  function whenText(item) {
+    const n = daysBetween(todayISO(), item.expires);
+    const f = S.settings.dateFmt;
+    if (f === 'date') return fmtDate(item.expires);
+    if (f === 'relative') return relDays(n);
+    return `${relDays(n)}`;
+  }
+  function itemNode(item) {
+    const st = status(item);
+    const li = document.createElement('li');
+    li.className = 'item ' + st;
+    li.dataset.id = item.id;
+    const c = cat(item.categoryId), l = loc(item.locationId);
+    const n = daysBetween(todayISO(), item.expires);
+    const qty = item.qty ? `${item.qty}${item.unit ? ' ' + item.unit : ''}` : '';
+    li.innerHTML = `
+      <div class="stripe" aria-hidden="true"></div>
+      <div class="body">
+        <button class="main" data-act="edit" aria-label="${esc(item.name)}, ${STATUS_LABEL[st].toLowerCase()}, ${relDays(n).toLowerCase()}. Edit">
+          <div style="min-width:0">
+            <div class="name">${esc(item.name)}</div>
+            <div class="meta">${qty ? `<span>${esc(qty)}</span>` : ''}${l ? `<span class="tag">${esc((l.emoji ? l.emoji + ' ' : '') + l.name)}</span>` : ''}${c ? `<span>${esc(c.name)}</span>` : ''}${item.opened ? `<span>opened ${esc(fmtDate(item.opened))}</span>` : ''}</div>
+          </div>
+          <div class="when"><span class="pill ${st}">${esc(whenText(item))}</span>${S.settings.dateFmt !== 'relative' ? `<span class="date">${esc(fmtDate(item.expires))}</span>` : ''}</div>
+        </button>
+        <div class="actions">
+          <button class="btn sm" data-act="used" aria-label="Mark ${esc(item.name)} as used up">Used</button>
+          <button class="btn sm" data-act="toss" aria-label="Toss ${esc(item.name)}">Toss</button>
+          <button class="btn sm" data-act="extend" aria-label="Extend ${esc(item.name)} by one day">+1 day</button>
+        </div>
+      </div>`;
+    return li;
+  }
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
+  function renderInventory() {
+    const c = counts();
+    $('#statExpired b').textContent = c.expired;
+    $('#statSoon b').textContent = c.soon + c.today;
+    $('#statFresh b').textContent = c.fresh;
+    $('#statExpired').setAttribute('aria-pressed', String(filterStatus === 'expired'));
+    $('#statSoon').setAttribute('aria-pressed', String(filterStatus === 'soon'));
+    $('#statFresh').setAttribute('aria-pressed', String(filterStatus === 'fresh'));
+    $('#btnTossExpired').hidden = c.expired === 0;
+    const badge = $('#badgeInv'); const attn = c.expired + c.today + c.soon;
+    badge.hidden = attn === 0; badge.textContent = attn; badge.setAttribute('aria-label', `${attn} items need attention`);
+    $('#sampleNotice').hidden = !S.items.some(i => i.sample);
+
+    // location chips
+    const chips = $('#locChips');
+    chips.innerHTML = '';
+    const mk = (id, label, count) => {
+      const b = document.createElement('button');
+      b.className = 'chip'; b.type = 'button'; b.dataset.loc = id;
+      b.setAttribute('aria-pressed', String(filterLoc === id));
+      b.innerHTML = `${esc(label)}<span class="count">${count}</span>`;
+      b.onclick = () => { filterLoc = id; renderInventory(); };
+      chips.appendChild(b);
+    };
+    mk('all', 'All', S.items.length);
+    S.locations.forEach(l => mk(l.id, (l.emoji ? l.emoji + ' ' : '') + l.name, S.items.filter(i => i.locationId === l.id).length));
+
+    const list = visibleItems();
+    const ul = $('#itemList'); ul.innerHTML = '';
+    const empty = $('#emptyInv');
+    if (!list.length) {
+      empty.hidden = false;
+      $('#emptyInvText').innerHTML = S.items.length ? 'Nothing matches this filter.' : 'Nothing here yet. Tap <b>Add</b> to track your first item.';
+    } else {
+      empty.hidden = true;
+      if (S.settings.group) {
+        const order = ['all', ...S.locations.map(l => l.id)];
+        const groups = new Map();
+        list.forEach(i => { const k = loc(i.locationId) ? i.locationId : '_none'; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(i); });
+        [...groups.keys()].sort((a, b) => order.indexOf(a) - order.indexOf(b)).forEach(k => {
+          const l = loc(k);
+          const h = document.createElement('li'); h.className = 'group-title'; h.setAttribute('role', 'presentation');
+          h.innerHTML = `<span>${esc(l ? (l.emoji ? l.emoji + ' ' : '') + l.name : 'No location')}</span><span>${groups.get(k).length}</span>`;
+          ul.appendChild(h);
+          groups.get(k).forEach(i => ul.appendChild(itemNode(i)));
+        });
+      } else list.forEach(i => ul.appendChild(itemNode(i)));
+    }
+  }
+
+  /* ---------- Item actions ---------- */
+  function addToShopping(item, reason) {
+    const name = item.name.trim();
+    if (S.shopping.some(s => s.name.toLowerCase() === name.toLowerCase() && !s.done)) return;
+    S.shopping.push({ id: uid(), name, done: false, categoryId: item.categoryId, locationId: item.locationId, qty: item.qty, unit: item.unit, from: reason, added: Date.now() });
+  }
+  function removeItem(id, mode) {
+    const idx = S.items.findIndex(i => i.id === id); if (idx < 0) return;
+    const item = S.items[idx];
+    const snapshot = JSON.stringify(S);
+    S.items.splice(idx, 1);
+    let wasteEntry = null;
+    if (mode === 'toss') {
+      wasteEntry = { id: uid(), name: item.name, categoryId: item.categoryId, qty: item.qty, unit: item.unit, date: todayISO(), reason: status(item) === 'expired' ? 'expired' : 'tossed', expires: item.expires };
+      S.waste.unshift(wasteEntry);
+    }
+    if (item.reshop && mode !== 'delete') addToShopping(item, mode);
+    save(); renderAll();
+    const label = mode === 'used' ? `Used up ${item.name}` : mode === 'toss' ? `Tossed ${item.name}` : `Deleted ${item.name}`;
+    toast(label + (item.reshop && mode !== 'delete' ? ' · added to shopping list' : ''), 'Undo', () => { S = JSON.parse(snapshot); save(); renderAll(); });
+  }
+  async function tossItem(id) {
+    const item = S.items.find(i => i.id === id); if (!item) return;
+    if (S.settings.confirmToss && !(await confirm('Toss this item?', `${item.name} will be logged as waste.`, 'Toss', true))) return;
+    removeItem(id, 'toss');
+  }
+  function extendItem(id, days) {
+    const item = S.items.find(i => i.id === id); if (!item) return;
+    const before = item.expires;
+    item.expires = addDays(item.expires, days);
+    save(); renderAll();
+    toast(`${item.name} now expires ${relDays(daysBetween(todayISO(), item.expires)).toLowerCase()}`, 'Undo', () => { item.expires = before; save(); renderAll(); });
+  }
+
+  /* ---------- Item form ---------- */
+  let expiryTouched = false;
+  function fillSelects() {
+    const cs = $('#fCategory'), ls = $('#fLocation');
+    cs.innerHTML = S.categories.map(c => `<option value="${esc(c.id)}">${esc(c.name)} · ${c.days}d</option>`).join('');
+    ls.innerHTML = S.locations.map(l => `<option value="${esc(l.id)}">${esc((l.emoji ? l.emoji + ' ' : '') + l.name)}</option>`).join('');
+    const names = new Set([...S.items.map(i => i.name), ...S.waste.map(w => w.name), ...Object.values(S.barcodes).map(b => b.name)].filter(Boolean));
+    $('#nameList').innerHTML = [...names].sort().map(n => `<option value="${esc(n)}">`).join('');
+  }
+  function suggestExpiry() {
+    const c = cat($('#fCategory').value); if (!c) return null;
+    const purchased = $('#fPurchased').value || todayISO();
+    const opened = $('#fOpened').value;
+    if (opened) {
+      const od = c.opened == null || c.opened === '' ? c.days : c.opened;
+      const a = addDays(opened, od), b = addDays(purchased, c.days);
+      return a < b ? a : b;
+    }
+    return addDays(purchased, c.days);
+  }
+  function applySuggestion(force) {
+    const s = suggestExpiry(); if (!s) return;
+    if (force || !expiryTouched) $('#fExpires').value = s;
+    const c = cat($('#fCategory').value);
+    $('#fExpiresHint').textContent = c ? `Suggested from ${c.name}: ${fmtDate(s)}${$('#fOpened').value ? ' (opened)' : ''}` : '';
+  }
+  function openItemForm(item, opts = {}) {
+    fillSelects();
+    const f = $('#itemForm');
+    f.reset();
+    $('#fNameErr').hidden = true; $('#fExpiresErr').hidden = true; $('#fBarcodeHint').hidden = true;
+    expiryTouched = !!item;
+    $('#itemDialogTitle').textContent = item ? (opts.duplicate ? 'Duplicate item' : 'Edit item') : 'Add item';
+    $('#btnDeleteItem').hidden = !item || !!opts.duplicate;
+    $('#btnDuplicate').hidden = !item || !!opts.duplicate;
+    $('#fId').value = item && !opts.duplicate ? item.id : '';
+    $('#fName').value = item ? item.name : (opts.name || '');
+    $('#fBarcode').value = item ? (item.barcode || '') : (opts.barcode || '');
+    $('#fCategory').value = item ? item.categoryId : (opts.categoryId || S.categories[0].id);
+    if (!$('#fCategory').value) $('#fCategory').value = S.categories[0].id;
+    $('#fLocation').value = item ? item.locationId : (opts.locationId || S.locations[0].id);
+    if (!$('#fLocation').value) $('#fLocation').value = S.locations[0].id;
+    $('#fQty').value = item ? item.qty : (opts.qty || 1);
+    $('#fUnit').value = item ? (item.unit || '') : (opts.unit || '');
+    $('#fPurchased').value = item && !opts.duplicate ? item.purchased : todayISO();
+    $('#fOpened').value = item && !opts.duplicate ? (item.opened || '') : '';
+    $('#fNotes').value = item ? (item.notes || '') : '';
+    $('#fReshop').checked = item ? !!item.reshop : S.settings.autoShop;
+    if (item && !opts.duplicate) { $('#fExpires').value = item.expires; $('#fExpiresHint').textContent = ''; }
+    else { expiryTouched = false; applySuggestion(true); }
+    if (opts.barcode) { $('#fBarcodeHint').hidden = false; $('#fBarcodeHint').textContent = `Barcode ${opts.barcode}${opts.lookedUp ? ' · name filled from Open Food Facts' : ' · saved with this item; the name will autofill next time you scan it'}`; }
+    openDialog($('#itemDialog'));
+    $('#fName').focus();
+  }
+  function saveItemForm() {
+    const name = $('#fName').value.trim();
+    const expires = $('#fExpires').value;
+    let ok = true;
+    $('#fNameErr').hidden = !!name; if (!name) { ok = false; $('#fName').focus(); }
+    $('#fExpiresErr').hidden = !!expires; if (!expires) { ok = false; if (name) $('#fExpires').focus(); }
+    if (!ok) return;
+    const id = $('#fId').value;
+    const data = {
+      name, categoryId: $('#fCategory').value, locationId: $('#fLocation').value,
+      qty: parseFloat($('#fQty').value) || 0, unit: $('#fUnit').value.trim(),
+      purchased: $('#fPurchased').value || todayISO(), opened: $('#fOpened').value || '',
+      expires, notes: $('#fNotes').value.trim(), barcode: $('#fBarcode').value.trim(), reshop: $('#fReshop').checked,
+    };
+    if (data.barcode) S.barcodes[data.barcode] = { name: data.name, categoryId: data.categoryId };
+    if (id) {
+      const it = S.items.find(i => i.id === id);
+      Object.assign(it, data); delete it.sample;
+      toast(`Saved ${name}`);
+    } else {
+      S.items.push({ id: uid(), ...data, added: Date.now() });
+      toast(`Added ${name} · expires ${relDays(daysBetween(todayISO(), expires)).toLowerCase()}`);
+    }
+    save(); renderAll();
+    closeDialog($('#itemDialog'));
+  }
+
+  /* ---------- Shopping ---------- */
+  function renderShopping() {
+    const ul = $('#shopList'); ul.innerHTML = '';
+    const open = S.shopping.filter(s => !s.done), done = S.shopping.filter(s => s.done);
+    $('#shopCount').textContent = `${open.length} to buy${done.length ? ` · ${done.length} bought` : ''}`;
+    $('#btnClearBought').hidden = !done.length;
+    const b = $('#badgeShop'); b.hidden = !open.length; b.textContent = open.length;
+    $('#emptyShop').hidden = S.shopping.length > 0;
+    [...open.sort((a, b) => a.name.localeCompare(b.name)), ...done].forEach(s => {
+      const li = document.createElement('li'); li.className = 'check-row' + (s.done ? ' done' : '');
+      const c = cat(s.categoryId);
+      li.innerHTML = `<input type="checkbox" id="shop-${s.id}" ${s.done ? 'checked' : ''} aria-label="Bought ${esc(s.name)}">
+        <label class="text" for="shop-${s.id}"><div>${esc(s.name)}</div><div class="sub">${[s.qty ? `${s.qty}${s.unit ? ' ' + s.unit : ''}` : '', c ? c.name : '', s.from === 'toss' ? 'tossed' : s.from === 'used' ? 'used up' : ''].filter(Boolean).join(' · ')}</div></label>
+        <button class="icon-btn" data-del aria-label="Remove ${esc(s.name)} from list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
+      li.querySelector('input').onchange = e => {
+        if (e.target.checked && !s.done) openRestock(s); else { s.done = false; save(); renderShopping(); }
+      };
+      li.querySelector('[data-del]').onclick = () => { S.shopping = S.shopping.filter(x => x.id !== s.id); save(); renderShopping(); };
+      ul.appendChild(li);
+    });
+  }
+  function openRestock(s) {
+    const d = $('#restockDialog');
+    $('#restockText').textContent = `${s.name}${cat(s.categoryId) ? ' · ' + cat(s.categoryId).name : ''}${loc(s.locationId) ? ' · ' + loc(s.locationId).name : ''}`;
+    const c = cat(s.categoryId);
+    $('#restockExpires').value = c ? addDays(todayISO(), c.days) : addDays(todayISO(), 7);
+    const finish = () => { d.removeEventListener('close', onClose); closeDialog(d); };
+    const onClose = () => { renderShopping(); };
+    d.addEventListener('close', onClose);
+    $('#restockSkip').onclick = () => { s.done = true; save(); finish(); renderShopping(); };
+    $('#restockForm').onsubmit = e => {
+      e.preventDefault();
+      const expires = $('#restockExpires').value || addDays(todayISO(), 7);
+      S.items.push({ id: uid(), name: s.name, categoryId: s.categoryId || S.categories[0].id, locationId: s.locationId || S.locations[0].id, qty: s.qty || 1, unit: s.unit || '', purchased: todayISO(), opened: '', expires, notes: '', barcode: '', reshop: S.settings.autoShop, added: Date.now() });
+      S.shopping = S.shopping.filter(x => x.id !== s.id);
+      save(); finish(); renderAll();
+      toast(`${s.name} added to inventory`);
+    };
+    openDialog(d);
+  }
+
+  /* ---------- Waste ---------- */
+  function renderWaste() {
+    const ul = $('#wasteList'); ul.innerHTML = '';
+    $('#emptyWaste').hidden = S.waste.length > 0;
+    $('#btnClearWaste').hidden = !S.waste.length;
+    const now = new Date(), ym = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+    const thisMonth = S.waste.filter(w => w.date.startsWith(ym));
+    const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1), pym = `${prev.getFullYear()}-${pad(prev.getMonth() + 1)}`;
+    const lastMonth = S.waste.filter(w => w.date.startsWith(pym)).length;
+    const tally = {};
+    S.waste.forEach(w => { const k = w.name.trim().toLowerCase(); tally[k] = tally[k] || { name: w.name, n: 0 }; tally[k].n++; });
+    const top = Object.values(tally).sort((a, b) => b.n - a.n).slice(0, 5);
+    const max = top.length ? top[0].n : 1;
+    const expiredShare = S.waste.length ? Math.round(100 * S.waste.filter(w => w.reason === 'expired').length / S.waste.length) : 0;
+    $('#wasteSummary').innerHTML = `
+      <h2>${now.toLocaleDateString(undefined, { month: 'long' })}</h2>
+      <div class="summary">
+        <div class="stat" style="background:var(--surface-2)"><b>${thisMonth.length}</b><span>tossed this month</span></div>
+        <div class="stat" style="background:var(--surface-2)"><b>${lastMonth}</b><span>last month</span></div>
+        <div class="stat" style="background:var(--surface-2)"><b>${expiredShare}%</b><span>went past expiry</span></div>
+      </div>
+      ${top.length ? `<h3>Most often wasted</h3><div class="rank">${top.map(t => `<div class="r"><span>${esc(t.name)}</span><span style="font-variant-numeric:tabular-nums">${t.n}×</span><div class="bar" style="grid-column:1/-1" aria-hidden="true"><i style="width:${Math.round(100 * t.n / max)}%"></i></div></div>`).join('')}</div><p style="font-size:.85rem;color:var(--muted)">Tip: buy smaller amounts of these, or set a shorter shelf life in their category so you get warned sooner.</p>` : `<p style="color:var(--muted)">Toss an item from the inventory and it shows up here.</p>`}`;
+    S.waste.forEach(w => {
+      const li = document.createElement('li'); li.className = 'check-row';
+      li.innerHTML = `<div class="text"><div>${esc(w.name)}</div><div class="sub">${esc(fmtDate(w.date))} · ${w.reason === 'expired' ? 'expired' : 'tossed early'}${w.qty ? ` · ${w.qty}${w.unit ? ' ' + w.unit : ''}` : ''}</div></div>
+        <button class="btn sm" data-rebuy aria-label="Add ${esc(w.name)} to shopping list">Rebuy</button>
+        <button class="icon-btn" data-del aria-label="Remove ${esc(w.name)} from log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
+      li.querySelector('[data-rebuy]').onclick = () => { addToShopping(w, 'rebuy'); save(); renderShopping(); toast(`${w.name} added to shopping list`); };
+      li.querySelector('[data-del]').onclick = () => { S.waste = S.waste.filter(x => x.id !== w.id); save(); renderWaste(); };
+      ul.appendChild(li);
+    });
+  }
+
+  /* ---------- Settings ---------- */
+  function applyAppearance() {
+    const r = document.documentElement;
+    if (S.settings.theme === 'system') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', S.settings.theme);
+    r.setAttribute('data-size', S.settings.size);
+  }
+  function renderSettings() {
+    $('#setNotif').checked = !!S.settings.notif && notifGranted();
+    $('#notifStatus').textContent = !('Notification' in window) ? 'Not supported in this browser' : Notification.permission === 'denied' ? 'Blocked in browser settings' : (S.settings.notif && notifGranted()) ? `On · ${S.settings.lead} day${S.settings.lead === 1 ? '' : 's'} ahead` : 'Off';
+    $('#setLead').value = S.settings.lead;
+    $('#setTheme').value = S.settings.theme; $('#setSize').value = S.settings.size; $('#setDateFmt').value = S.settings.dateFmt;
+    $('#setGroup').checked = !!S.settings.group; $('#setAutoShop').checked = !!S.settings.autoShop; $('#setConfirmToss').checked = !!S.settings.confirmToss;
+    // managers
+    const mgr = (root, list, kind) => {
+      root.innerHTML = '';
+      list.forEach((x, i) => {
+        const row = document.createElement('div'); row.className = 'mgr-row';
+        const used = kind === 'loc' ? S.items.filter(it => it.locationId === x.id).length : S.items.filter(it => it.categoryId === x.id).length;
+        row.innerHTML = `<div><div class="nm">${esc((x.emoji ? x.emoji + ' ' : '') + x.name)}</div><div class="sub">${kind === 'cat' ? `${x.days} days · ${x.opened != null && x.opened !== '' ? x.opened + ' once opened' : 'same once opened'} · ` : ''}${used} item${used === 1 ? '' : 's'}</div></div>
+          <div class="ops">
+            <button class="icon-btn" data-up aria-label="Move ${esc(x.name)} up" ${i === 0 ? 'disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 15 6-6 6 6"/></svg></button>
+            <button class="icon-btn" data-down aria-label="Move ${esc(x.name)} down" ${i === list.length - 1 ? 'disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <button class="icon-btn" data-edit aria-label="Edit ${esc(x.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4"/></svg></button>
+            <button class="icon-btn" data-del aria-label="Delete ${esc(x.name)}" ${list.length <= 1 ? 'disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+          </div>`;
+        row.querySelector('[data-up]').onclick = () => { [list[i - 1], list[i]] = [list[i], list[i - 1]]; save(); renderAll(); };
+        row.querySelector('[data-down]').onclick = () => { [list[i + 1], list[i]] = [list[i], list[i + 1]]; save(); renderAll(); };
+        row.querySelector('[data-edit]').onclick = () => promptEntity(kind, x);
+        row.querySelector('[data-del]').onclick = async () => {
+          const fallback = list.find(y => y.id !== x.id);
+          const msg = used ? `${used} item${used === 1 ? '' : 's'} will move to "${fallback.name}".` : 'This cannot be undone.';
+          if (!(await confirm(`Delete ${x.name}?`, msg, 'Delete', true))) return;
+          S.items.forEach(it => { if (kind === 'loc' && it.locationId === x.id) it.locationId = fallback.id; if (kind === 'cat' && it.categoryId === x.id) it.categoryId = fallback.id; });
+          list.splice(i, 1); save(); renderAll();
+        };
+        root.appendChild(row);
+      });
+    };
+    mgr($('#locMgr'), S.locations, 'loc');
+    mgr($('#catMgr'), S.categories, 'cat');
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    $('#installHint').textContent = standalone ? 'Installed to your home screen.' : 'Tip: add FreshKeep to your home screen for a full-screen app (Share → Add to Home Screen on iOS, or the install prompt on Android).';
+  }
+  function promptEntity(kind, x) {
+    const d = $('#promptDialog');
+    $('#promptTitle').textContent = (x ? 'Edit ' : 'New ') + (kind === 'loc' ? 'location' : 'category');
+    $('#promptEmojiWrap').hidden = kind !== 'loc';
+    $('#promptDaysWrap').hidden = kind !== 'cat';
+    $('#promptName').value = x ? x.name : '';
+    $('#promptEmoji').value = x && x.emoji ? x.emoji : '';
+    $('#promptDays').value = x && kind === 'cat' ? x.days : 7;
+    $('#promptOpened').value = x && kind === 'cat' && x.opened != null ? x.opened : '';
+    $('#promptCancel').onclick = () => closeDialog(d);
+    $('#promptForm').onsubmit = e => {
+      e.preventDefault();
+      const name = $('#promptName').value.trim(); if (!name) { $('#promptName').focus(); return; }
+      if (kind === 'loc') {
+        const emoji = $('#promptEmoji').value.trim();
+        if (x) { x.name = name; x.emoji = emoji; } else S.locations.push({ id: uid(), name, emoji });
+      } else {
+        const days = Math.max(0, parseInt($('#promptDays').value, 10) || 0);
+        const ov = $('#promptOpened').value.trim();
+        const opened = ov === '' ? null : Math.max(0, parseInt(ov, 10) || 0);
+        if (x) { x.name = name; x.days = days; x.opened = opened; } else S.categories.push({ id: uid(), name, days, opened });
+      }
+      save(); renderAll(); closeDialog(d);
+    };
+    openDialog(d);
+  }
+
+  /* ---------- Notifications ---------- */
+  const notifGranted = () => 'Notification' in window && Notification.permission === 'granted';
+  async function enableNotifications() {
+    if (!('Notification' in window)) { toast('This browser does not support notifications.'); return false; }
+    let p = Notification.permission;
+    if (p === 'default') { try { p = await Notification.requestPermission(); } catch (e) { p = 'denied'; } }
+    if (p !== 'granted') { toast('Notifications are blocked. Allow them in your browser settings.'); S.settings.notif = false; save(); renderSettings(); return false; }
+    S.settings.notif = true; save(); renderSettings();
+    registerPeriodicSync();
+    checkReminders(true);
+    return true;
+  }
+  async function showNotification(title, body, tag) {
+    try {
+      const reg = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistration() : null;
+      if (reg && reg.showNotification) return reg.showNotification(title, { body, tag, icon: 'icon-192.png', badge: 'icon-192.png' });
+      new Notification(title, { body, tag });
+    } catch (e) { /* ignore */ }
+  }
+  function checkReminders(force) {
+    if (!S.settings.notif || !notifGranted()) return;
+    const t = todayISO();
+    const due = S.items.filter(i => { const st = status(i); return st !== 'fresh' && (force || S.notified[i.id] !== t); });
+    if (!due.length) return;
+    due.forEach(i => S.notified[i.id] = t);
+    Object.keys(S.notified).forEach(k => { if (!S.items.some(i => i.id === k)) delete S.notified[k]; });
+    save();
+    const exp = due.filter(i => status(i) === 'expired'), soon = due.filter(i => status(i) !== 'expired');
+    const parts = [];
+    if (exp.length) parts.push(`${exp.length} expired: ${exp.slice(0, 3).map(i => i.name).join(', ')}${exp.length > 3 ? '…' : ''}`);
+    if (soon.length) parts.push(`${soon.length} expiring soon: ${soon.slice(0, 3).map(i => `${i.name} (${relDays(daysBetween(t, i.expires)).toLowerCase()})`).join(', ')}${soon.length > 3 ? '…' : ''}`);
+    showNotification('FreshKeep', parts.join(' · '), 'freshkeep-daily');
+  }
+  async function registerPeriodicSync() {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if (!('periodicSync' in reg)) return;
+      const st = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (st.state === 'granted') await reg.periodicSync.register('freshkeep-check', { minInterval: 12 * 3600 * 1000 });
+    } catch (e) { /* unsupported */ }
+  }
+  function pushSnapshotToSW() {
+    try {
+      if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+      navigator.serviceWorker.controller.postMessage({ type: 'snapshot', items: S.items.map(i => ({ name: i.name, expires: i.expires })), lead: S.settings.lead, notif: !!S.settings.notif });
+    } catch (e) { /* ignore */ }
+  }
+
+  /* ---------- Barcode scanning ---------- */
+  let scanStream = null, scanLoop = null, zxingReader = null;
+  async function openScanner() {
+    const d = $('#scanDialog'), status = $('#scanStatus'), video = $('#scanVideo');
+    $('#scanManual').value = '';
+    openDialog(d);
+    $('#scanManual').focus();
+    status.textContent = 'Starting camera…';
+    const stop = () => { if (scanLoop) { cancelAnimationFrame(scanLoop); clearTimeout(scanLoop); scanLoop = null; } if (zxingReader) { try { zxingReader.reset(); } catch (e) {} zxingReader = null; } if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; } video.srcObject = null; };
+    const finish = code => { stop(); closeDialog(d); handleBarcode(code); };
+    $('#scanCancel').onclick = () => { stop(); closeDialog(d); };
+    d.onclose = stop;
+    $('#scanManualGo').onclick = () => { const v = $('#scanManual').value.replace(/\D/g, ''); if (v) finish(v); };
+    $('#scanManual').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#scanManualGo').click(); } };
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { status.textContent = 'Camera not available here — type the number instead.'; return; }
+    try {
+      scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      video.srcObject = scanStream; await video.play();
+    } catch (e) { status.textContent = 'Camera access was denied or unavailable — type the number instead.'; return; }
+    if ('BarcodeDetector' in window) {
+      status.textContent = 'Point the camera at the barcode.';
+      let det;
+      try { det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'] }); } catch (e) { det = new BarcodeDetector(); }
+      const tick = async () => {
+        if (!scanStream) return;
+        try { const codes = await det.detect(video); if (codes.length) { finish(codes[0].rawValue); return; } } catch (e) {}
+        scanLoop = setTimeout(tick, 200);
+      };
+      tick();
+    } else {
+      status.textContent = 'Loading scanner…';
+      try {
+        await loadScript('https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js');
+        const ZX = window.ZXing;
+        zxingReader = new ZX.BrowserMultiFormatReader();
+        status.textContent = 'Point the camera at the barcode.';
+        zxingReader.decodeFromStream(scanStream, video, (result) => { if (result) finish(result.getText()); });
+      } catch (e) { status.textContent = 'Scanner could not load — type the number instead.'; }
+    }
+  }
+  function loadScript(src) { return new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+  async function handleBarcode(code) {
+    const known = S.barcodes[code];
+    if (known) { openItemForm(null, { name: known.name, categoryId: known.categoryId, barcode: code }); return; }
+    toast('Looking up barcode…', null, null, 8000);
+    let name = '', categoryId = '', lookedUp = false;
+    try {
+      const ctrl = new AbortController(); const tm = setTimeout(() => ctrl.abort(), 6000);
+      const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=product_name,brands,categories_tags,quantity`, { signal: ctrl.signal });
+      clearTimeout(tm);
+      const j = await r.json();
+      if (j && j.status === 1 && j.product) {
+        const p = j.product;
+        name = [p.brands ? p.brands.split(',')[0].trim() : '', p.product_name || ''].filter(Boolean).join(' ').trim();
+        if (p.quantity && name) name += ` (${p.quantity})`;
+        categoryId = guessCategory((p.categories_tags || []).join(' '));
+        lookedUp = !!name;
+      }
+    } catch (e) { /* offline, blocked, or not found */ }
+    hideToast();
+    if (!lookedUp) toast('No match found — enter the name and it will be remembered for this barcode.');
+    openItemForm(null, { name, categoryId, barcode: code, lookedUp });
+  }
+  function guessCategory(tags) {
+    const t = tags.toLowerCase();
+    const rules = [['frozen', 'frozen'], ['seafood|fish', 'seafood'], ['meat|poultry|chicken|beef|pork', 'meat'], ['cheese|milk|yogurt|dairy|butter|cream', 'dairy'], ['egg', 'eggs'], ['bread|bakery|pastr', 'bread'], ['salad|lettuce|spinach|herb', 'leafy'], ['fruit|vegetable|produce', 'produce'], ['sauce|condiment|dressing|mayonnaise|ketchup|mustard', 'condiments'], ['canned|jar|preserv', 'canned'], ['beverage|drink|juice|soda|water', 'drinks'], ['snack|cereal|pasta|rice|flour|biscuit|chip|cookie', 'dry']];
+    for (const [re, id] of rules) if (new RegExp(re).test(t) && cat(id)) return id;
+    return '';
+  }
+
+  /* ---------- Export / import ---------- */
+  function exportData() {
+    const d = $('#exportDialog');
+    const text = JSON.stringify({ app: 'FreshKeep', version: 1, exported: new Date().toISOString(), data: S });
+    $('#exportText').value = text;
+    // The hosted artifact viewer doesn't allow page-initiated downloads; Copy is the path there.
+    $('#exportDownload').hidden = !!(window.claude && !window.claude.downloads);
+    $('#exportClose').onclick = () => closeDialog(d);
+    $('#exportCopy').onclick = async () => { try { await navigator.clipboard.writeText(text); toast('Backup copied'); } catch (e) { $('#exportText').select(); toast('Select the text and copy it'); } };
+    $('#exportDownload').onclick = () => {
+      try {
+        const blob = new Blob([text], { type: 'application/json' }); const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `freshkeep-backup-${todayISO()}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+      } catch (e) { toast('Download not available here — use Copy instead.'); }
+    };
+    openDialog(d);
+  }
+  function importData() {
+    const d = $('#importDialog'); $('#importText').value = '';
+    $('#importCancel').onclick = () => closeDialog(d);
+    $('#importForm').onsubmit = async e => {
+      e.preventDefault();
+      try {
+        const j = JSON.parse($('#importText').value);
+        const data = j && j.data && j.app === 'FreshKeep' ? j.data : j;
+        if (!data || !Array.isArray(data.items)) throw new Error('bad');
+        if (!(await confirm('Replace everything on this device?', `${data.items.length} items, ${(data.shopping || []).length} shopping entries, ${(data.waste || []).length} waste entries.`, 'Import'))) return;
+        localStorage.setItem(KEY, JSON.stringify(data)); load(); applyAppearance(); renderAll(); closeDialog(d); toast('Backup imported');
+      } catch (err) { toast('That doesn’t look like a FreshKeep backup.'); }
+    };
+    openDialog(d);
+  }
+
+  /* ---------- Navigation ---------- */
+  const TITLES = { inventory: 'Inventory', shopping: 'Shopping list', waste: 'Waste', settings: 'Settings' };
+  function showView(v) {
+    view = v;
+    $$('.view').forEach(s => s.hidden = s.id !== 'view-' + v);
+    $$('.tabbar [role=tab]').forEach(t => { const on = t.dataset.view === v; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
+    $('#viewTitle').textContent = TITLES[v];
+    $('#fab').hidden = v === 'settings' || v === 'waste';
+    $('#btnSearchToggle').hidden = v !== 'inventory';
+    $('#btnScanTop').hidden = v !== 'inventory';
+    $('#main').scrollTop = 0;
+    try { sessionStorage.setItem('freshkeep.view', v); } catch (e) {}
+    if (v === 'shopping') $('#fab').setAttribute('aria-label', 'Add item');
+  }
+  function renderAll() { renderInventory(); renderShopping(); renderWaste(); renderSettings(); }
+
+  /* ---------- Wire up ---------- */
+  function wire() {
+    $$('.tabbar [role=tab]').forEach(t => t.onclick = () => showView(t.dataset.view));
+    $('.tabbar').addEventListener('keydown', e => {
+      const tabs = $$('.tabbar [role=tab]'); const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+      let n = null; if (e.key === 'ArrowRight') n = (i + 1) % tabs.length; if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length; if (e.key === 'Home') n = 0; if (e.key === 'End') n = tabs.length - 1;
+      if (n != null) { e.preventDefault(); tabs[n].focus(); showView(tabs[n].dataset.view); }
+    });
+    $('#fab').onclick = () => openItemForm(null);
+    $('#btnScanTop').onclick = openScanner;
+    $('#btnScanForm').onclick = () => { closeDialog($('#itemDialog')); openScanner(); };
+    $('#btnSearchToggle').onclick = () => { const w = $('#searchWrap'); w.hidden = !w.hidden; $('#btnSearchToggle').setAttribute('aria-expanded', String(!w.hidden)); if (!w.hidden) $('#search').focus(); else { query = ''; $('#search').value = ''; renderInventory(); } };
+    $('#search').oninput = e => { query = e.target.value; renderInventory(); };
+    $('#sort').onchange = renderInventory;
+    const statBtn = (id, st) => $(id).onclick = () => { filterStatus = filterStatus === st ? null : st; renderInventory(); };
+    statBtn('#statExpired', 'expired'); statBtn('#statSoon', 'soon'); statBtn('#statFresh', 'fresh');
+    $('#btnClearSamples').onclick = () => { const snap = JSON.stringify(S); S.items = S.items.filter(i => !i.sample); save(); renderAll(); toast('Example items removed', 'Undo', () => { S = JSON.parse(snap); save(); renderAll(); }); };
+    $('#btnTossExpired').onclick = async () => {
+      const exp = S.items.filter(i => status(i) === 'expired');
+      if (!(await confirm(`Toss ${exp.length} expired item${exp.length === 1 ? '' : 's'}?`, exp.map(i => i.name).join(', '), 'Toss all', true))) return;
+      const snap = JSON.stringify(S);
+      exp.forEach(i => { S.waste.unshift({ id: uid(), name: i.name, categoryId: i.categoryId, qty: i.qty, unit: i.unit, date: todayISO(), reason: 'expired', expires: i.expires }); if (i.reshop) addToShopping(i, 'toss'); });
+      S.items = S.items.filter(i => status(i) !== 'expired');
+      save(); renderAll(); toast(`Tossed ${exp.length} item${exp.length === 1 ? '' : 's'}`, 'Undo', () => { S = JSON.parse(snap); save(); renderAll(); });
+    };
+    $('#itemList').addEventListener('click', e => {
+      const b = e.target.closest('[data-act]'); if (!b) return;
+      const id = b.closest('.item').dataset.id; const act = b.dataset.act;
+      if (act === 'edit') openItemForm(S.items.find(i => i.id === id));
+      else if (act === 'used') removeItem(id, 'used');
+      else if (act === 'toss') tossItem(id);
+      else if (act === 'extend') extendItem(id, 1);
+    });
+    // item form
+    const f = $('#itemForm');
+    f.addEventListener('submit', e => { e.preventDefault(); saveItemForm(); });
+    $$('[data-close]', f).forEach(b => b.onclick = () => closeDialog($('#itemDialog')));
+    $('#itemDialog').addEventListener('cancel', e => { e.preventDefault(); closeDialog($('#itemDialog')); });
+    $('#fCategory').onchange = () => applySuggestion(false);
+    $('#fPurchased').onchange = () => applySuggestion(false);
+    $('#fOpened').onchange = () => { expiryTouched = false; applySuggestion(true); };
+    $('#fExpires').oninput = () => { expiryTouched = true; $('#fExpiresHint').textContent = ''; };
+    $$('.quick .chip').forEach(c => c.onclick = () => { $('#fExpires').value = addDays(todayISO(), +c.dataset.days); expiryTouched = true; $('#fExpiresHint').textContent = ''; });
+    $('#qtyMinus').onclick = () => { const i = $('#fQty'); i.value = Math.max(0, (parseFloat(i.value) || 0) - 1); };
+    $('#qtyPlus').onclick = () => { const i = $('#fQty'); i.value = (parseFloat(i.value) || 0) + 1; };
+    $('#btnDeleteItem').onclick = async () => { const id = $('#fId').value; if (await confirm('Delete this item?', 'It won’t be logged as waste or added to your shopping list.', 'Delete', true)) { closeDialog($('#itemDialog')); removeItem(id, 'delete'); } };
+    $('#btnDuplicate').onclick = () => { const it = S.items.find(i => i.id === $('#fId').value); closeDialog($('#itemDialog')); openItemForm(it, { duplicate: true }); };
+    // shopping
+    $('#shopAddForm').onsubmit = e => { e.preventDefault(); const v = $('#shopAddName').value.trim(); if (!v) return; addToShopping({ name: v }, 'manual'); $('#shopAddName').value = ''; save(); renderShopping(); };
+    $('#btnClearBought').onclick = () => { S.shopping = S.shopping.filter(s => !s.done); save(); renderShopping(); };
+    $('#btnClearWaste').onclick = async () => { if (await confirm('Clear the waste log?', 'The monthly summary will start over.', 'Clear', true)) { S.waste = []; save(); renderWaste(); } };
+    // settings
+    $('#setNotif').onchange = async e => { if (e.target.checked) { const ok = await enableNotifications(); e.target.checked = ok; } else { S.settings.notif = false; save(); renderSettings(); } };
+    $('#btnEnableNotif').onclick = enableNotifications;
+    $('#btnDismissNotif').onclick = () => { S.settings.notifDismissed = true; save(); $('#notifNotice').hidden = true; };
+    $('#btnTestNotif').onclick = async () => { if (!notifGranted()) { if (!(await enableNotifications())) return; } showNotification('FreshKeep', 'Reminders are working. You’ll hear from me when something is about to expire.', 'freshkeep-test'); };
+    $('#setLead').onchange = e => { S.settings.lead = Math.min(30, Math.max(0, parseInt(e.target.value, 10) || 0)); save(); renderAll(); };
+    $('#setTheme').onchange = e => { S.settings.theme = e.target.value; save(); applyAppearance(); };
+    $('#setSize').onchange = e => { S.settings.size = e.target.value; save(); applyAppearance(); };
+    $('#setDateFmt').onchange = e => { S.settings.dateFmt = e.target.value; save(); renderInventory(); };
+    $('#setGroup').onchange = e => { S.settings.group = e.target.checked; save(); renderInventory(); };
+    $('#setAutoShop').onchange = e => { S.settings.autoShop = e.target.checked; save(); };
+    $('#setConfirmToss').onchange = e => { S.settings.confirmToss = e.target.checked; save(); };
+    $('#btnAddLoc').onclick = () => promptEntity('loc', null);
+    $('#btnAddCat').onclick = () => promptEntity('cat', null);
+    $('#btnExport').onclick = exportData;
+    $('#btnImport').onclick = importData;
+    $('#btnReset').onclick = async () => { if (await confirm('Erase everything?', 'All items, lists, locations, categories and settings on this device will be deleted.', 'Erase', true)) { try { localStorage.removeItem(KEY); } catch (e) {} load(); S.items = []; S.settings.sampleShown = true; save(); applyAppearance(); renderAll(); showView('inventory'); toast('Everything erased'); } };
+    // generic dialogs: Escape closes & restores focus
+    $$('dialog').forEach(d => d.addEventListener('close', () => { lastFocus && lastFocus.focus && lastFocus.focus(); }));
+    // re-check when app returns to foreground / date changes
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { renderAll(); checkReminders(false); } });
+    // keyboard shortcut: "n" for new item when not typing
+    document.addEventListener('keydown', e => { if (e.key === 'n' && !e.metaKey && !e.ctrlKey && !/input|textarea|select/i.test(document.activeElement.tagName) && !document.querySelector('dialog[open]')) { e.preventDefault(); openItemForm(null); } });
+  }
+
+  /* ---------- Service worker ---------- */
+  function registerSW() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      navigator.serviceWorker.register('sw.js').then(() => { pushSnapshotToSW(); registerPeriodicSync(); }).catch(() => {});
+      navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'open-inventory') showView('inventory'); });
+    } catch (e) { /* not available on this origin */ }
+  }
+
+  /* ---------- Boot ---------- */
+  load();
+  applyAppearance();
+  wire();
+  renderAll();
+  let startView = 'inventory'; try { startView = sessionStorage.getItem('freshkeep.view') || 'inventory'; } catch (e) {}
+  showView(TITLES[startView] ? startView : 'inventory');
+  $('#notifNotice').hidden = S.settings.notifDismissed || S.settings.notif || !('Notification' in window) || Notification.permission === 'denied';
+  registerSW();
+  checkReminders(false);
+  // roll the day over if the app stays open past midnight
+  let lastDay = todayISO();
+  setInterval(() => { if (todayISO() !== lastDay) { lastDay = todayISO(); renderAll(); checkReminders(false); } }, 60000);
+})();
+
+</script>
+</body>
+</html>
