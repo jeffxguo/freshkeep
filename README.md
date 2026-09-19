@@ -2,7 +2,7 @@
 
 A small, installable web app for tracking grocery expiry dates. No accounts, no server — everything is stored on your device.
 
-Live: https://jeffxguo.me/freshkeep/
+Live: https://jeffxguo.github.io/freshkeep/
 
 - Shelf-life presets per category fill in the expiry date; an "opened on" date shortens it
 - Barcode scanning (camera) with Open Food Facts lookup and a local memory for codes you've scanned
